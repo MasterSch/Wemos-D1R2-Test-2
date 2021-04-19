@@ -1,55 +1,205 @@
 #include <Arduino.h>
+#include <PxMatrix.h>
+#include <Wire.h>
 
+
+
+#ifdef ESP32
+
+#define P_LAT 22
+#define P_A 19
+#define P_B 23
+#define P_C 18
+#define P_D 5
+#define P_E 15
+#define P_OE 16
+hw_timer_t * timer = NULL;
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+
+#endif
+
+#ifdef ESP8266
+
+#include <Ticker.h>
+Ticker display_ticker;
+#define P_LAT 16
+#define P_A 5
+#define P_B 4
+#define P_C 15
+#define P_D 12
+#define P_E 0
+#define P_OE 2
+
+#endif
+// Pins for LED MATRIX
+
+//PxMATRIX display(32,16,P_LAT, P_OE,P_A,P_B,P_C);
+PxMATRIX display(64,32,P_LAT, P_OE,P_A,P_B,P_C,P_D);
+//PxMATRIX display(64,64,P_LAT, P_OE,P_A,P_B,P_C,P_D,P_E);
+
+#ifdef ESP8266
+// ISR for display refresh
+void display_updater()
+{
+  display.displayTestPattern(70);
+  // display.displayTestPixel(70);
+  //display.display(70);
+}
+#endif
+
+#ifdef ESP32
+void IRAM_ATTR display_updater(){
+  // Increment the counter and set the time of ISR
+  portENTER_CRITICAL_ISR(&timerMux);
+  //isplay.display(70);
+  display.displayTestPattern(70);
+  portEXIT_CRITICAL_ISR(&timerMux);
+}
+#endif
+
+
+uint16_t myCYAN = display.color565(0, 255, 255);
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin(115200);
+  delay(2000);
+  Serial.println("Start........");
+  display.begin(4);
+  display.flushDisplay();
+  display.setTextColor(myCYAN);
+  display.setCursor(2,0);
+  display.print("Pixel");
+  Serial.println("hello");
+
+  #ifdef ESP8266
+    display_ticker.attach(0.004, display_updater);
+  #endif
+
+  #ifdef ESP32
+    timer = timerBegin(0, 80, true);
+    timerAttachInterrupt(timer, &display_updater, true);
+    timerAlarmWrite(timer, 4000, true);
+    timerAlarmEnable(timer);
+  #endif
+
+  delay(1000);
+}
+
+
+void loop() {
+
+ delay(100);
+ Serial.println("hello");
+
+}
+
+
+
+
+
+
+
+
+
+
+/*
+int LED1 = 14;
+//int LED2 = 2;
 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
-  pinMode(D0, OUTPUT);
-  pinMode(D1, OUTPUT);
-  pinMode(D2, OUTPUT);
-  pinMode(D3, OUTPUT);
-  pinMode(D4, OUTPUT);
-  pinMode(D5, OUTPUT);
-  pinMode(D6, OUTPUT);
-  pinMode(D7, OUTPUT);
-  pinMode(D8, OUTPUT);
-  //pinMode(D9, OUTPUT);
+
+pinMode(LED1, OUTPUT); 
+//pinMode(LED2, OUTPUT); 
+
+digitalWrite(LED1, HIGH);  
+//digitalWrite(LED2, LOW);   
+
+
+
+  pinMode(0, OUTPUT);
+  pinMode(1, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
+  pinMode(14, OUTPUT);
+  pinMode(15, OUTPUT);
+  pinMode(16, OUTPUT);
+
+
+  
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  digitalWrite(D0, LOW);   // turn the LED on (HIGH is the voltage level)
+//  digitalWrite(LED1, LOW);  
+//  digitalWrite(LED2, LOW);   
+  delay(200);
+//  digitalWrite(LED1, HIGH);  
+//  digitalWrite(LED2, HIGH);
+  delay(200);
+  
+  digitalWrite(0, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(200);                       // wait for a second
-  digitalWrite(D0, HIGH);    // turn the LED off by making the voltage HIGH
-  digitalWrite(D1, LOW);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(0, LOW);    // turn the LED off by making the voltage HIGH
+  
+  
+  digitalWrite(1, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(200);                       // wait for a second
-  digitalWrite(D1, HIGH);  
-  digitalWrite(D2, LOW);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(1, LOW);  
+  
+  
+  digitalWrite(2, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(200);                       // wait for a second
-  digitalWrite(D2, HIGH);  
-  digitalWrite(D3, LOW);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(2, LOW);  
+  
+  
+  digitalWrite(3, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(200);                       // wait for a second
-  digitalWrite(D3, HIGH);  
-  digitalWrite(D4, LOW);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(3, LOW);  
+  
+  
+  digitalWrite(4, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(200);                       // wait for a second
-  digitalWrite(D4, HIGH);  
-  digitalWrite(D5, LOW);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(4, LOW);  
+  
+  
+  digitalWrite(5, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(200);                       // wait for a second
-  digitalWrite(D5, HIGH);    // turn the LED off by making the voltage HIGH
-  digitalWrite(D6, LOW);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(5, LOW);    // turn the LED off by making the voltage HIGH
+  
+  
+  digitalWrite(12, HIGH);   // turn the LED on (LOW is the voltage level)
   delay(200);                       // wait for a second
-  digitalWrite(D6, HIGH);  
-  digitalWrite(D7, LOW);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(12, LOW);  
+  
+
+  digitalWrite(13, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(200);                       // wait for a second
-  digitalWrite(D7, HIGH);  
-  digitalWrite(D8, LOW);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(13, LOW);  
+  
+  
+  digitalWrite(14, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(200);                       // wait for a second
-  digitalWrite(D8, HIGH);  
-//  digitalWrite(D9, LOW);   // turn the LED on (HIGH is the voltage level)
-//  delay(200);                       // wait for a second
-//  digitalWrite(D9, HIGH);  
+  digitalWrite(14, LOW);  
+  
+  
+  digitalWrite(15, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(200);                       // wait for a second
+  digitalWrite(15, LOW);  
+
+
+  digitalWrite(16, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(200);                       // wait for a second
+  digitalWrite(16, LOW);  
+
 }
+*/
 
 
 
